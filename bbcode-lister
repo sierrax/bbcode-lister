@@ -1,0 +1,56 @@
+#!/bin/bash
+###
+#
+# This is a script to create a simple nicely-formatted track listing from
+# a directory of mp3s.  It uses mediainfo in order to parse metadata and writes
+# the bbcode-formatted track listing to stdout.
+#
+###
+SCRAPEFILE=$(ls -1 *.{mp3,flac} 2>/dev/null | head -1)
+
+if [ $1 == "-v" ]
+then
+        AARTIST="Various Artists"
+else
+        AARTIST=`mediainfo -f "$SCRAPEFILE" |
+                grep -i -m 1 Performer |
+                sed 's/\(.\{43\}\)//'`
+fi
+
+ALBUM=`mediainfo -f "$SCRAPEFILE" |
+        grep -i -m 1 Album |
+        sed 's/\(.\{43\}\)//'`
+
+YEAR=`mediainfo -f "$SCRAPEFILE" |
+        grep -i -m 1 Recorded |
+        sed 's/\(.\{43\}\)//'`
+
+echo "[size=4]"$AARTIST - $ALBUM \($YEAR\)"[/size]"
+
+for afile in *;
+        do
+                TYPE=$(file -ib "$afile" | cut -f1 -d ' ')
+                
+                if [[ $TYPE == audio\/mpeg\; || $TYPE == audio\/x\-flac\; ]]
+                
+                then
+                        TRACKNO=`mediainfo "$afile" | 
+                        grep -i -m 1 track\ name\/ |
+                        sed 's/\(.\{43\}\)//'`;
+                        
+                        ARTIST=`mediainfo "$afile" |
+                        grep -i -m 1 performer |
+                        sed 's/\(.\{43\}\)//'`;
+
+                        TITLE=`mediainfo "$afile" | 
+                        grep -i -m 1 track\ name\  |
+                        sed 's/\(.\{43\}\)//'`;
+
+                        LENGTH=`mediainfo -f "$afile" |
+                        grep -i -m 1 ": 00:" | 
+                        sed 's/\(.\{46\}\)//' | 
+                        sed 's/....$//'`;
+                
+                        echo "[b]"$TRACKNO".[/b] "$ARTIST - $TITLE \($LENGTH\)
+                fi
+        done

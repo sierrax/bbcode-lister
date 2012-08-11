@@ -8,21 +8,61 @@
 ###
 SCRAPEFILE=$(ls -1 *.{mp3,flac} 2>/dev/null | head -1)
 
-if [ $1 == "-v" ]
+help()
+{
+cat << EOF
+This script will create a BBCode-formatted track list from MP3 or
+FLAC files in the current directory.
+
+OPTIONS:
+  -h	Show this message
+  -s	Use standard artist naming
+  -v	Use various artist naming
+EOF
+}
+
+AARTIST=
+ALBUM=
+YEAR=
+TRACKNO=
+ARTIST=
+TITLE=
+LENGTH=
+
+while getopts ":hvs" OPTION
+do
+	case $OPTION in
+		h)
+			help
+			exit 1
+			;;
+		v)
+			AARTIST="Various Artists"
+			;;
+		s)
+			AARTIST=`mediainfo -f "$SCRAPEFILE" |
+		        grep -i -m 1 "Performer" |
+		        sed 's/\(.\{43\}\)//'`
+			;;
+		?)
+			help
+			exit 1
+			;;
+	esac
+done
+
+if [[ -z $AARTIST ]]
 then
-        AARTIST="Various Artists"
-else
-        AARTIST=`mediainfo -f "$SCRAPEFILE" |
-                grep -i -m 1 Performer |
-                sed 's/\(.\{43\}\)//'`
+	help
+	exit 1
 fi
 
 ALBUM=`mediainfo -f "$SCRAPEFILE" |
-        grep -i -m 1 Album |
+        grep -i -m 1 "Album" |
         sed 's/\(.\{43\}\)//'`
 
 YEAR=`mediainfo -f "$SCRAPEFILE" |
-        grep -i -m 1 Recorded |
+        grep -i -m 1 "Recorded" |
         sed 's/\(.\{43\}\)//'`
 
 echo "[size=4]"$AARTIST - $ALBUM \($YEAR\)"[/size]"
@@ -35,15 +75,15 @@ for afile in *;
                 
                 then
                         TRACKNO=`mediainfo "$afile" | 
-                        grep -i -m 1 track\ name\/ |
+                        grep -i -m 1 "position" |
                         sed 's/\(.\{43\}\)//'`;
                         
                         ARTIST=`mediainfo "$afile" |
-                        grep -i -m 1 performer |
+                        grep -i -m 1 "performer" |
                         sed 's/\(.\{43\}\)//'`;
 
                         TITLE=`mediainfo "$afile" | 
-                        grep -i -m 1 track\ name\  |
+                        grep -i -m 1 "track name"  |
                         sed 's/\(.\{43\}\)//'`;
 
                         LENGTH=`mediainfo -f "$afile" |

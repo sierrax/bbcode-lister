@@ -68,29 +68,29 @@ YEAR=`mediainfo -f "$SCRAPEFILE" |
 echo "[size=4]"$AARTIST - $ALBUM \($YEAR\)"[/size]"
 
 for afile in *;
-        do
-                TYPE=$(file -ib "$afile" | cut -f1 -d ' ')
+    do
+        TYPE=$(file -ib "$afile" | cut -f1 -d ' ')
+    
+        if [[ $TYPE == audio\/mpeg\; || $TYPE == audio\/x\-flac\; ]]
                 
-                if [[ $TYPE == audio\/mpeg\; || $TYPE == audio\/x\-flac\; ]]
-                
-                then
-                        TRACKNO=`mediainfo "$afile" | 
-                        grep -i -m 1 "position" |
-                        sed 's/\(.\{43\}\)//'`;
-                        
-                        ARTIST=`mediainfo "$afile" |
-                        grep -i -m 1 "performer" |
-                        sed 's/\(.\{43\}\)//'`;
+        then
+            TRACKNO=`mediainfo "$afile" | 
+            grep -i -m 1 "position" |
+            sed 's/\(.\{43\}\)//'`;
+            
+            ARTIST=`mediainfo "$afile" |
+            grep -i -m 1 "performer" |
+            sed 's/\(.\{43\}\)//'`;
 
-                        TITLE=`mediainfo "$afile" | 
-                        grep -i -m 1 "track name"  |
-                        sed 's/\(.\{43\}\)//'`;
+            TITLE=`mediainfo "$afile" | 
+            grep -i -m 1 "track name"  |
+            sed 's/\(.\{43\}\)//'`;
 
-                        LENGTH=`mediainfo -f "$afile" |
-                        grep -i -m 1 ": 00:" | 
-                        sed 's/\(.\{46\}\)//' | 
-                        sed 's/....$//'`;
-                
-                        echo "[b]"$TRACKNO".[/b] "$ARTIST - $TITLE \($LENGTH\)
-                fi
+            LENGTH=`mediainfo -f "$afile" |
+            grep -i -m 1 ": 00:" | 
+            sed 's/\(.\{46\}\)//' | 
+            sed 's/....$//'`;
+    
+            echo "[b]"$TRACKNO".[/b] "$ARTIST - $TITLE \($LENGTH\)
+        fi
         done

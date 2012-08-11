@@ -75,7 +75,7 @@ for afile in *;
                 
         then
             TRACKNO=`mediainfo "$afile" | 
-            grep -i -m 1 "position" |
+            grep -i -m 1 "track name/position" |
             sed 's/\(.\{43\}\)//'`;
             
             ARTIST=`mediainfo "$afile" |
